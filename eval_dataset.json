@@ -11,7 +11,7 @@
     },
     {
         "query": "Intermittent crash switching between Equity and Fixed Income tabs.",
-        "expected_keywords": ["PROPOSED", "Windows 11", "4K", "reinstall"],
+        "expected_keywords": ["NO PROVEN RESOLUTION", "Windows 11", "4K", "reinstall"],
         "category": "UI/Crash"
     }
 ]

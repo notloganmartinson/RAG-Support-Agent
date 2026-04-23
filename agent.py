@@ -21,7 +21,10 @@ INSTRUCTIONS:
 - Prioritize [LIVE SYSTEM STATUS]. If a system is 'DEGRADED' or 'SUSPENDED', mention this first as the likely cause.
 - Use [HISTORICAL DATA] to provide specific technical fixes (timeouts, error codes).
 - You MUST include technical values (e.g., 60000ms).
-- If the status is 'Unresolved', you MUST explicitly start your resolution with the word 'PROPOSED SOLUTION:' and explain that it is based on similar symptoms but hasn't been verified yet.
+- IF NO RESOLVED FIX EXISTS: 
+    1. You MUST start with the header: "⚠️ NO PROVEN RESOLUTION FOUND IN HISTORICAL DATABASE."
+    2. You MUST list the steps that ALREADY FAILED (from PREVIOUS_FAILURES) and tell the user NOT to repeat them.
+    3. Label your synthesis clearly as "PROPOSED EXPERIMENTAL STEPS".
 - If PII is masked (e.g., [EMAIL]), refer to it by the placeholder.
 """
 
@@ -54,14 +57,29 @@ def run_agent(user_query):
     console.print(f"[bold cyan]Searching for relevant data...[/bold cyan]")
     historical_context = search_tickets(clean_query, n_results=3)
     
+    # Audit Layer: Force Guardrails in code, not just prompt
+    is_resolved = "STATUS: Resolved" in historical_context
+    warning_prefix = ""
+    if not is_resolved and "STATUS: Unresolved" in historical_context:
+        warning_prefix = "⚠️ NO PROVEN RESOLUTION FOUND IN HISTORICAL DATABASE.\n"
+        warning_prefix += "NOTE: The following steps have ALREADY FAILED and should NOT be repeated: "
+        # Extract failed steps from the context to warn the user
+        failed_match = re.findall(r"PREVIOUS_FAILURES: (.*?)(?=\n|\||$)", historical_context)
+        if failed_match:
+            warning_prefix += ", ".join(set(failed_match)) + "\n\n"
+
     # Step 4: Final Synthesis
     prompt = f"{SYSTEM_PROMPT}\n\n[LIVE SYSTEM STATUS]\n{live_context or 'No specific system match.'}\n\n[HISTORICAL DATA]\n{historical_context}\n\nUser Ticket: {clean_query}\n\nFinal Answer:"
     
     response = call_llm(prompt)
-    console.print(f"[bold yellow]Agent Response:[/bold yellow]")
-    console.print(response)
     
-    return response, historical_context # Return context for feedback loop
+    # Prepend the hardcoded audit warning if necessary
+    final_output = warning_prefix + response
+    
+    console.print(f"[bold yellow]Agent Response:[/bold yellow]")
+    console.print(final_output)
+    
+    return final_output, historical_context 
 
 if __name__ == "__main__":
     import sys

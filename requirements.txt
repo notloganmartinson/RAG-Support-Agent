@@ -1,0 +1,14 @@
+# API & Backend
+fastapi
+uvicorn
+
+# Vector Database & Embeddings
+chromadb
+sentence-transformers
+
+# LLM Interfacing & Routing
+requests
+pydantic
+
+# CLI Aesthetics (Crucial for the Loom video)
+rich

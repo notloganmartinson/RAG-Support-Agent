@@ -1,0 +1,17 @@
+[
+    {
+        "query": "Sharpe ratio is showing negative values despite positive returns.",
+        "expected_keywords": ["risk-free rate", "10-year Treasury", "configuration"],
+        "category": "Calculation"
+    },
+    {
+        "query": "Direct API timeout when fetching historical NAVs for European funds.",
+        "expected_keywords": ["timeout", "60000ms", "header"],
+        "category": "API"
+    },
+    {
+        "query": "Intermittent crash switching between Equity and Fixed Income tabs.",
+        "expected_keywords": ["PROPOSED", "Windows 11", "4K", "reinstall"],
+        "category": "UI/Crash"
+    }
+]

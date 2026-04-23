@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Database
+chroma_data/
+tickets.json
+
+# IDEs
+.vscode/
+.idea/

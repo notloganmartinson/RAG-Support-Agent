@@ -1,50 +1,117 @@
-# Institutional-Grade Support Agent
+LOCAL RAG SUPPORT AGENT — RAG-Support-Agent/README.md
+Local RAG Support Agent
 
-An air-gapped, high-precision ReAct-inspired support agent designed for B2B financial software environments. This project demonstrates a production-ready RAG pipeline that prioritizes accuracy, security, and institutional reliability.
+A local technical-support prototype that uses retrieval-augmented generation to surface relevant information from historical support records.
 
-## Key Features
+The project explores local inference, semantic retrieval, metadata filtering, sensitive-data masking, feedback-informed ranking, and automated evaluation without requiring a hosted LLM API for normal use.
 
-*   **Hybrid RAG Pipeline**: Combines semantic vector search (ChromaDB) with metadata filtering to ensure only relevant, trusted data reaches the LLM.
-*   **Surgical Context Extraction**: Eliminates "context stuffing" by extracting only the specific resolution steps (the "needle") from historical logs.
-*   **PII Scrubber**: Automatically detects and masks sensitive information (Emails, Client IDs, ISINs) before processing, ensuring GDPR/SOC2 compliance.
-*   **Live System Bridge**: Integrates with production monitors to provide real-time status updates (e.g., API outages) alongside historical fixes.
-*   **Self-Improving Feedback Loop**: Allows human agents to verify resolutions, which prioritizes those fixes for future queries.
+What It Does
 
-## Performance & Reliability
+A user submits a technical support question through a CLI.
 
-This agent is verified using an automated **Evaluation Framework**. It achieves **100% accuracy** in extracting technical parameters from historical data.
+The system:
 
-| Category | Query Snippet | Accuracy | Status |
-| :--- | :--- | :--- | :--- |
-| **Calculation** | Sharpe ratio anomalies... | 100.0% | **PASS** |
-| **API** | Direct API timeouts... | 100.0% | **PASS** |
-| **UI/Crash** | Intermittent tab crashes... | 100.0% | **PASS** |
+Searches indexed support information for relevant historical context
+Applies metadata filtering where appropriate
+Extracts targeted context for the current issue
+Masks configured sensitive-data patterns before model processing
+Sends the retrieved context to a locally running language model
+Produces a proposed support response
+Allows the result to be checked against expected behavior through an evaluation workflow
 
-## Tech Stack
+The project is intended as a prototype for experimenting with support-oriented retrieval, not as a production support platform.
 
-*   **LLM**: Qwen2.5:3b (Running locally via Ollama)
-*   **Vector DB**: ChromaDB
-*   **Embeddings**: `all-MiniLM-L6-v2` (Local)
-*   **Framework**: Custom Python RAG (No LangChain/LlamaIndex for maximum transparency)
-*   **UI**: Rich-enhanced CLI
+Key Features
+Filtered Semantic Retrieval
 
-## Quick Start
+Support records are embedded and stored in ChromaDB.
 
-1. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+Queries use semantic similarity together with available metadata to narrow the context provided to the model.
 
-2. **Run the Agent**:
-   ```bash
-   python chat.py
-   ```
+Targeted Context Extraction
 
-3. **Run Evaluations**:
-   ```bash
-   python evaluator.py
-   ```
+Rather than placing large amounts of retrieved text into the model prompt, the workflow attempts to identify the parts of historical records most relevant to the current issue.
 
-## Security & Privacy
+This is intended to reduce irrelevant context and make generated support responses easier to evaluate.
 
-This system is designed to be **completely air-gapped**. No data is sent to external APIs (OpenAI, Anthropic, etc.). All embeddings and LLM inferences happen locally on your hardware.
+Sensitive-Data Masking
+
+Configured patterns such as:
+
+Email addresses
+Client identifiers
+ISIN-like identifiers
+
+can be masked before retrieved text is provided to the model.
+
+This is a prototype privacy control and should not be interpreted as providing regulatory compliance on its own.
+
+Local Inference
+
+Normal model inference is performed through Ollama.
+
+This makes it possible to experiment with the support workflow without sending support records to a hosted LLM provider.
+
+Feedback-Weighted Retrieval
+
+The prototype includes a mechanism for verified resolutions to influence how historical fixes are prioritized during later retrieval.
+
+This is an experiment in incorporating human feedback into retrieval rather than retraining the underlying model.
+
+Evaluation
+
+The repository includes a small automated evaluation set covering support scenarios such as:
+
+Calculation-related issues
+API failures
+UI/crash reports
+
+On the included fixtures, the current implementation extracts the expected technical parameters for the test cases.
+
+This evaluation is intended as a regression check for the prototype rather than a production benchmark or general accuracy claim.
+
+Tech Stack
+Python
+Ollama
+Qwen2.5
+ChromaDB
+Sentence Transformers
+all-MiniLM-L6-v2
+Local embeddings
+Rich CLI
+Running the Project
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Make sure Ollama is installed and the configured model is available.
+
+Then run:
+
+python chat.py
+
+Run the evaluation workflow with:
+
+python evaluator.py
+Privacy Model
+
+The support workflow is designed to run locally after setup.
+
+Model inference uses Ollama and embeddings are generated locally, so normal support queries do not require a hosted LLM API.
+
+Local execution alone is not a complete security model. A production deployment would still require appropriate access controls, storage security, auditability, data-retention policies, and review of any external integrations.
+
+What I Was Exploring
+
+The main question behind this project was not simply whether an LLM could answer support questions.
+
+I wanted to experiment with the surrounding system:
+
+How much context should be retrieved?
+How can irrelevant historical information be filtered out?
+How can sensitive values be removed before inference?
+How can human-approved resolutions influence future retrieval?
+How can the output be tested instead of judged only by whether it sounds plausible?
+
+Those questions are the parts of applied AI systems I find most interesting.
